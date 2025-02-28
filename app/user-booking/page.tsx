@@ -8,12 +8,12 @@ import { collection, addDoc } from "firebase/firestore";
 
 const UserBookingPage = () => {
   const [formData, setFormData] = useState({
-    customer_name: "",
+    name: "",
     phone_number: "",
     email: "",
     date: "",
     time: "",
-    number_of_people: "",
+    guest_count: "",
     special_requests: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,10 +29,19 @@ const UserBookingPage = () => {
 
     try {
       const reservationsRef = collection(firestore, "reservations");
+      const dateTime = new Date(`${formData.date}T${formData.time}`);
+
       await addDoc(reservationsRef, {
-        ...formData,
+        name: formData.name,
+        phone_number: formData.phone_number,
+        email: formData.email || null,
+        datetime_booked: dateTime,
+        guest_count: parseInt(formData.guest_count),
+        special_requests: formData.special_requests,
+        status: 1, // Pending status
+        table_assigned: 0, // No table assigned yet
         created_at: new Date(),
-        status: "pending",
+        updated_at: new Date(),
       });
 
       setSubmitStatus({
@@ -40,16 +49,18 @@ const UserBookingPage = () => {
         message:
           "Reservation submitted successfully! We will contact you shortly.",
       });
+      // Reset form
       setFormData({
-        customer_name: "",
+        name: "",
         phone_number: "",
         email: "",
         date: "",
         time: "",
-        number_of_people: "",
+        guest_count: "",
         special_requests: "",
       });
-    } catch {
+    } catch (err) {
+      console.error("Reservation error:", err);
       setSubmitStatus({
         type: "error",
         message: "Failed to submit reservation. Please try again.",
@@ -109,9 +120,9 @@ const UserBookingPage = () => {
               <input
                 type="text"
                 id="name"
-                value={formData.customer_name}
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, customer_name: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
                 required
                 className="mt-1 block w-full rounded-md bg-gray-800 border-amber-700 text-white 
@@ -214,9 +225,9 @@ const UserBookingPage = () => {
               </label>
               <select
                 id="people"
-                value={formData.number_of_people}
+                value={formData.guest_count}
                 onChange={(e) =>
-                  setFormData({ ...formData, number_of_people: e.target.value })
+                  setFormData({ ...formData, guest_count: e.target.value })
                 }
                 required
                 className="mt-1 block w-full rounded-md bg-gray-800 border-amber-700 text-white 
