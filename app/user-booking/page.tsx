@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { firestore } from "@/firebase/config";
+import { collection, addDoc } from "firebase/firestore";
 
 const UserBookingPage = () => {
   const [formData, setFormData] = useState({
@@ -14,11 +16,47 @@ const UserBookingPage = () => {
     number_of_people: "",
     special_requests: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Add reservation submission logic
-    console.log(formData);
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: "" });
+
+    try {
+      const reservationsRef = collection(firestore, "reservations");
+      await addDoc(reservationsRef, {
+        ...formData,
+        created_at: new Date(),
+        status: "pending",
+      });
+
+      setSubmitStatus({
+        type: "success",
+        message:
+          "Reservation submitted successfully! We will contact you shortly.",
+      });
+      setFormData({
+        customer_name: "",
+        phone_number: "",
+        email: "",
+        date: "",
+        time: "",
+        number_of_people: "",
+        special_requests: "",
+      });
+    } catch {
+      setSubmitStatus({
+        type: "error",
+        message: "Failed to submit reservation. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,6 +85,18 @@ const UserBookingPage = () => {
               below.
             </p>
           </div>
+
+          {submitStatus.type && (
+            <div
+              className={`p-4 rounded-md ${
+                submitStatus.type === "success"
+                  ? "bg-green-800/50 text-green-200"
+                  : "bg-red-800/50 text-red-200"
+              }`}
+            >
+              {submitStatus.message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-2">
@@ -208,13 +258,15 @@ const UserBookingPage = () => {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full flex justify-center py-3 px-4 border-2 border-amber-600 
                 rounded-full shadow-sm text-sm font-medium text-white bg-amber-700 
                 hover:bg-white hover:text-amber-700 hover:border-amber-700
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 
-                focus:ring-offset-gray-800 transition-colors duration-300"
+                focus:ring-offset-gray-800 transition-colors duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Make Reservation
+              {isSubmitting ? "Submitting..." : "Make Reservation"}
             </button>
           </form>
         </div>
