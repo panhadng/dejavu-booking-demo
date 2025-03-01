@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IoArrowBack } from "react-icons/io5";
 import { IoRefresh } from "react-icons/io5";
+import Link from "next/link";
 
 interface FirestoreReservation {
   id: string;
@@ -21,6 +22,7 @@ interface FirestoreReservation {
   status: number;
   table_assigned: number;
   updated_at: Timestamp;
+  reservation_id: string;
 }
 
 interface Reservation {
@@ -35,6 +37,7 @@ interface Reservation {
   status: number;
   table_assigned: number;
   updated_at: string;
+  reservation_id: string;
 }
 
 const TestPage = () => {
@@ -133,7 +136,12 @@ const TestPage = () => {
                   <p className="text-amber-500 font-semibold">
                     Reservation ID:
                   </p>
-                  <p className="text-gray-300">{reservation.id}</p>
+                  <Link
+                    href={`/user-booking/${reservation.id}`}
+                    className="text-gray-300 hover:text-amber-500 transition-colors"
+                  >
+                    {reservation.reservation_id}
+                  </Link>
                 </div>
                 <div>
                   <p className="text-amber-500 font-semibold">Name:</p>

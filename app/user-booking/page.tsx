@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { firestore } from "@/firebase/config";
 import { collection, addDoc } from "firebase/firestore";
+import { generateReservationId } from "@/app/utils/reservationUtils";
+import { useRouter } from "next/navigation";
 
 const UserBookingPage = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +23,7 @@ const UserBookingPage = () => {
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,8 +33,10 @@ const UserBookingPage = () => {
     try {
       const reservationsRef = collection(firestore, "reservations");
       const dateTime = new Date(`${formData.date}T${formData.time}`);
+      const reservation_id = generateReservationId(dateTime);
 
       await addDoc(reservationsRef, {
+        reservation_id,
         name: formData.name,
         phone_number: formData.phone_number,
         email: formData.email || null,
@@ -44,21 +49,8 @@ const UserBookingPage = () => {
         updated_at: new Date(),
       });
 
-      setSubmitStatus({
-        type: "success",
-        message:
-          "Reservation submitted successfully! We will contact you shortly.",
-      });
-      // Reset form
-      setFormData({
-        name: "",
-        phone_number: "",
-        email: "",
-        date: "",
-        time: "",
-        guest_count: "",
-        special_requests: "",
-      });
+      // Change this line to use reservation_id instead of docRef.id
+      router.push(`/user-booking/${reservation_id}`);
     } catch (err) {
       console.error("Reservation error:", err);
       setSubmitStatus({
