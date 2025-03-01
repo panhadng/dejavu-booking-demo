@@ -1,10 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FaUser } from "react-icons/fa";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[url('/pub-bg.jpg')] bg-cover bg-center bg-no-repeat">
-      <div className="min-h-screen bg-black/50 flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-black/50 flex flex-col items-center justify-center p-8 relative">
+        <Link
+          href="/login"
+          className="absolute top-4 right-4 p-2 text-sm font-semibold text-white bg-black/50 
+            hover:bg-white hover:text-var(--color-primary-hover)
+            rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl
+            border-2 border-var(--color-border) hover:border-var(--color-border-hover)"
+        >
+          <FaUser size={20} />
+        </Link>
         <main className="flex flex-col items-center gap-8 max-w-xl text-center">
           <Image
             className="rounded-lg shadow-2xl"
@@ -24,10 +34,10 @@ export default function Home() {
 
           <Link
             href="/user-booking"
-            className="mt-8 px-8 py-3 text-lg font-semibold text-white bg-amber-700 
-              hover:bg-white hover:text-amber-700
+            className="mt-8 px-8 py-3 text-lg font-semibold text-white bg-var(--color-primary) 
+              hover:bg-white hover:text-var(--color-primary-hover)
               rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl
-              border-2 border-amber-600 hover:border-amber-700"
+              border-2 border-var(--color-border) hover:border-var(--color-border-hover)"
           >
             Book Now
           </Link>
