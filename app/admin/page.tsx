@@ -7,6 +7,8 @@ import { format, isSameDay } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getReservationStatus, getStatusColor } from "../../utils";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/services/useAuth";
 
 const timeSlots = [
   "10:00", "11:00", "12:00", "13:00", "14:00", "15:00",
@@ -43,6 +45,8 @@ const ReservationSystem = () => {
   const [tables, setTables] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [showTableForm, setShowTableForm] = useState(false);
+  const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [newReservation, setNewReservation] = useState({
     name: "",
     phone_number: "",
@@ -96,6 +100,12 @@ const ReservationSystem = () => {
     tableData.sort((a, b) => a.name.localeCompare(b.name));
     setTables(tableData);
   }, []);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login"); // Redirect to login if not authenticated
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
     fetchReservations();
@@ -157,20 +167,20 @@ const ReservationSystem = () => {
     }
 
 
-    
+
     const isTableAssigned = currentReservations.some((res) => {
       const reservationStartTime = new Date(res.datetime_booked.seconds * 1000);
       const reservationEndTime = new Date(reservationStartTime);
       reservationEndTime.setHours(reservationEndTime.getHours() + res.duration);
-    
+
       const newReservationStartTime = new Date(reservationData.datetime_booked.seconds * 1000);
       const newReservationEndTime = new Date(newReservationStartTime);
       newReservationEndTime.setHours(newReservationEndTime.getHours() + reservationData.duration);
-    
+
       return res.table_assigned === Number(tableId) && res.status === 2 &&
         ((newReservationStartTime >= reservationStartTime && newReservationStartTime < reservationEndTime) ||
-        (newReservationEndTime > reservationStartTime && newReservationEndTime <= reservationEndTime) ||
-        (newReservationStartTime <= reservationStartTime && newReservationEndTime >= reservationEndTime));
+          (newReservationEndTime > reservationStartTime && newReservationEndTime <= reservationEndTime) ||
+          (newReservationStartTime <= reservationStartTime && newReservationEndTime >= reservationEndTime));
     });
 
     if (isTableAssigned) {
@@ -220,8 +230,9 @@ const ReservationSystem = () => {
     isSameDay(new Date(reservation.datetime_booked.seconds * 1000), selectedDate)
   );
 
-
-  return (
+  if (authLoading) {
+    return <div className="p-5 bg-gray-900 text-white min-h-screen">Loading...</div>;
+  } else return (
     <div className="p-5 bg-gray-900 text-white min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
