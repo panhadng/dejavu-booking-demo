@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,11 +18,13 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       const fromQR = searchParams.get("fromQR") === "true";
-      const redirectTo = fromQR ? `admin/user-booking/${searchParams.get("reservation_id")}` : "/admin";
+      const redirectTo = fromQR
+        ? `admin/user-booking/${searchParams.get("reservation_id")}`
+        : "/admin";
       router.push(redirectTo);
     } catch (err) {
       setError("Invalid email or password");
-      console.log('err', err);
+      console.log("err", err);
     }
   };
 
@@ -67,5 +69,13 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
