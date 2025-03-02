@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase/config";
 
@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,10 +17,12 @@ export default function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin");
+      const fromQR = searchParams.get("fromQR") === "true";
+      const redirectTo = fromQR ? `admin/user-booking/${searchParams.get("reservation_id")}` : "/admin";
+      router.push(redirectTo);
     } catch (err) {
       setError("Invalid email or password");
-      console.log('err', err)
+      console.log('err', err);
     }
   };
 
