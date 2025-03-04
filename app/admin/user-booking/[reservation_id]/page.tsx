@@ -16,7 +16,7 @@ import Image from "next/image";
 import QRCode from "react-qr-code";
 import { IoArrowBack } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/services/useAuth";
+// import { useAuth } from "@/services/useAuth"; // Comment out auth import
 
 interface Reservation {
   id: string;
@@ -39,7 +39,7 @@ interface Reservation {
 export default function ReservationPage() {
   const params = useParams();
   const router = useRouter();
-  const { isAuthenticated, loading:authLoading } = useAuth();
+  // const { isAuthenticated, loading:authLoading } = useAuth(); // Comment out auth hook
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -47,12 +47,14 @@ export default function ReservationPage() {
     Partial<Reservation>
   >({});
 
+  // Comment out authentication check
+  /*
   useEffect(() => {
-    // logout();
     if (!authLoading && !isAuthenticated) {
       router.push(`/login?fromQR=true&reservation_id=${params.reservation_id}`);
     }
   }, [isAuthenticated, authLoading, router]);
+  */
 
   useEffect(() => {
     const fetchReservation = async () => {
@@ -114,6 +116,8 @@ export default function ReservationPage() {
     }
   };
 
+  // Remove auth loading check
+  /*
   if (authLoading) {
     return <div className="flex items-center justify-center p-5 bg-gray-900 text-white min-h-screen">
       <div className="text-center">
@@ -122,6 +126,7 @@ export default function ReservationPage() {
       </div>
     </div>
   }
+  */
 
   if (error) {
     return (
@@ -239,26 +244,27 @@ export default function ReservationPage() {
                 </select>
               ) : (
                 <div
-                  className={`inline-block px-3 py-1 rounded-full ${reservation.status === 1
-                    ? "bg-yellow-600/50"
-                    : reservation.status === 2
+                  className={`inline-block px-3 py-1 rounded-full ${
+                    reservation.status === 1
+                      ? "bg-yellow-600/50"
+                      : reservation.status === 2
                       ? "bg-blue-600/50"
                       : reservation.status === 3
-                        ? "bg-green-600/50"
-                        : reservation.status === 4
-                          ? "bg-purple-600/50"
-                          : "bg-red-600/50"
-                    }`}
+                      ? "bg-green-600/50"
+                      : reservation.status === 4
+                      ? "bg-purple-600/50"
+                      : "bg-red-600/50"
+                  }`}
                 >
                   {reservation.status === 1
                     ? "Pending"
                     : reservation.status === 2
-                      ? "Confirmed"
-                      : reservation.status === 3
-                        ? "Seated"
-                        : reservation.status === 4
-                          ? "Completed"
-                          : "Cancelled"}
+                    ? "Confirmed"
+                    : reservation.status === 3
+                    ? "Seated"
+                    : reservation.status === 4
+                    ? "Completed"
+                    : "Cancelled"}
                 </div>
               )}
             </div>
@@ -343,8 +349,9 @@ export default function ReservationPage() {
             <p className="text-amber-500 font-semibold">Reservation QR Code</p>
             <div className="bg-white p-4 rounded-lg">
               <QRCode
-                value={`${typeof window !== "undefined" ? window.location.origin : ""
-                  }/user-booking/${reservation.reservation_id}`}
+                value={`${
+                  typeof window !== "undefined" ? window.location.origin : ""
+                }/user-booking/${reservation.reservation_id}`}
                 size={200}
               />
             </div>
