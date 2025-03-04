@@ -166,7 +166,7 @@ export default function ReservationPage() {
                 <QRCode
                   value={`${
                     typeof window !== "undefined" ? window.location.origin : ""
-                  }admin/user-booking/${reservation.reservation_id}${"adminScan"}`}
+                  }/admin/user-booking/${reservation.reservation_id}`}
                   size={200}
                 />
               </div>
